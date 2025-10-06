@@ -21,9 +21,10 @@ export default class VolumePercentExtension extends Extension {
             originalMethod => {
                 return (monitorIndex, icon, label, level, maxLevel) => {
                     maxLevel = Number.isFinite(maxLevel) ? maxLevel : 1;
+                    const percentValue = Number.isFinite(level) ? Math.round(level / maxLevel * 100).toString() + '%' : null;
                     this._osdWindows[monitorIndex].setIcon(icon);
                     this._osdWindows[monitorIndex].setLabel(typeof label === "string" ? label : "");
-                    this._osdWindows[monitorIndex]._setLabelPercent(Math.round(level / maxLevel * 100).toString() + '%');
+                    this._osdWindows[monitorIndex]._setLabelPercent(percentValue);
                     this._osdWindows[monitorIndex].setMaxLevel(maxLevel);
                     this._osdWindows[monitorIndex].setLevel(level);
                     this._osdWindows[monitorIndex].show();
