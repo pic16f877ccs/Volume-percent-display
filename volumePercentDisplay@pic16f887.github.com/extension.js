@@ -128,10 +128,6 @@ export const VolumePercentOsdWindow = GObject.registerClass(
         }
     }
 
-    _updateHBoxVisibility() {
-        this._hbox.visible = [...this._hbox].some(c => c.visible);
-    }
-
     _setLabelPercent(label) {
         if (label === null) {
             if (this._empty_box !== null) {
@@ -163,8 +159,6 @@ export const VolumePercentOsdWindow = GObject.registerClass(
                 this._label_percent.text = label;
             }
         }
-
-        this._updateHBoxVisibility();
     }
 
     _resetPercentLabel() {
