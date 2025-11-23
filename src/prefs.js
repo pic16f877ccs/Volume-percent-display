@@ -28,5 +28,24 @@ export default class MonitorSmartSaverPreferences extends ExtensionPreferences {
 
         window._settings.bind('position-right-bottom', volumePositionSwitchRow, 'active',
         Gio.SettingsBindFlags.DEFAULT);
+
+        const volumeStepGroup = new Adw.PreferencesGroup({ title: _('Volume Control')});
+        volumeStepGroup.set_separate_rows?.(true);
+        page.add(volumeStepGroup);
+
+        const volumeStepRow = new Adw.SpinRow({
+            title: _('Volume step size'),
+            subtitle: _('Percentage to increase/decrease volume with each key press'),
+            adjustment: new Gtk.Adjustment({
+                lower: 1,
+                upper: 20,
+                step_increment: 1,
+            }),
+        });
+
+        volumeStepGroup.add(volumeStepRow);
+
+        window._settings.bind('volume-step', volumeStepRow, 'value',
+        Gio.SettingsBindFlags.DEFAULT);
     }
 }

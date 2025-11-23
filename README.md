@@ -14,6 +14,7 @@ This repository contains a GNOME Shell extension with the UUID:
 
 - Displays the current volume percentage in the OSD while changing the system volume.
 - Configurable placement: vertical or horizontal.
+- **Customizable volume step size**: Control how much the volume increases or decreases with each key press (1-20%).
 - Lightweight and unobtrusive.
 
 ## Installation
@@ -35,8 +36,9 @@ This repository contains a GNOME Shell extension with the UUID:
 
 ## Settings
 
-The extension provides preferences for placement:
-- Orientation: choose Horizontal or Vertical placement of the percentage in the OSD.
+The extension provides preferences for:
+- **Orientation**: choose Horizontal or Vertical placement of the percentage in the OSD.
+- **Volume Step Size**: configure how much the volume increases or decreases with each key press (1-20%, default is 5%).
 
 Open preferences via:
 - GNOME Extensions app, or

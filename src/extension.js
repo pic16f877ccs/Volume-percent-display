@@ -1,6 +1,7 @@
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 import St from 'gi://St';
+import * as Volume from 'resource:///org/gnome/shell/ui/status/volume.js';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { Extension, InjectionManager } from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -10,6 +11,7 @@ export default class VolumePercentExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
         this._percent_label_position = this._settings.get_boolean('position-right-bottom');
+        this._volumeStep = this._settings.get_int('volume-step') / 100.0;
         this._injectionManager = new InjectionManager();
 
         this._osdWindows = [];
@@ -18,6 +20,7 @@ export default class VolumePercentExtension extends Extension {
 
         this._monitorsChanged();
 
+        // Override OSD window display
         this._injectionManager.overrideMethod(OsdWindowManagerOrig.prototype, '_showOsdWindow',
             originalMethod => {
                 return (monitorIndex, icon, label, level, maxLevel) => {
@@ -30,6 +33,19 @@ export default class VolumePercentExtension extends Extension {
                     originalMethod.call(this, monitorIndex, icon, label, level, maxLevel);
                 };
             });
+
+        // Override volume step increments
+        this._injectionManager.overrideMethod(Volume.StreamSlider.prototype, '_volumeStep',
+            originalMethod => {
+                return () => {
+                    return this._volumeStep;
+                };
+            });
+
+        // Listen for settings changes
+        this._settingsChangedId = this._settings.connect('changed::volume-step', () => {
+            this._volumeStep = this._settings.get_int('volume-step') / 100.0;
+        });
     }
 
     _monitorsChanged() {
@@ -47,6 +63,11 @@ export default class VolumePercentExtension extends Extension {
     }
 
     disable() {
+        if (this._settingsChangedId) {
+            this._settings.disconnect(this._settingsChangedId);
+            this._settingsChangedId = null;
+        }
+
         this._injectionManager.clear();
         this._injectionManager = null;
 
