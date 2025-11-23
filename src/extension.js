@@ -38,13 +38,20 @@ export default class VolumePercentExtension extends Extension {
             });
 
         // Override volume step increments
-        this._injectionManager.overrideMethod(Volume.StreamSlider.prototype, '_volumeStep',
-            originalMethod => {
-                return () => {
-                    // Access the extension's volume step from the captured extension instance
-                    return extension._volumeStep;
-                };
-            });
+        // Note: This overrides a method in GNOME Shell's volume control
+        try {
+            this._injectionManager.overrideMethod(Volume.StreamSlider.prototype, '_volumeStep',
+                originalMethod => {
+                    return () => {
+                        // Access the extension's volume step from the captured extension instance
+                        return extension._volumeStep;
+                    };
+                });
+        } catch (e) {
+            // If override fails (e.g., method doesn't exist in this GNOME Shell version),
+            // log warning but continue - the extension will still show volume percentage
+            console.warn('Volume-Percent-Display: Failed to override volume step:', e.message);
+        }
 
         // Listen for settings changes
         this._settingsChangedId = this._settings.connect('changed::volume-step', () => {
