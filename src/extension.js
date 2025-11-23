@@ -20,6 +20,9 @@ export default class VolumePercentExtension extends Extension {
 
         this._monitorsChanged();
 
+        // Capture extension reference for use in overridden methods
+        const extension = this;
+
         // Override OSD window display
         this._injectionManager.overrideMethod(OsdWindowManagerOrig.prototype, '_showOsdWindow',
             originalMethod => {
@@ -28,7 +31,7 @@ export default class VolumePercentExtension extends Extension {
                     const percentValue = Number.isFinite(level) ? Math.round(level / maxLevel * 100).toString() + '%' : null;
                     label = typeof label === "string" ? label : "";
                     label = Number.isFinite(level) ? label : null;
-                    this._osdWindows[monitorIndex]._setLabelPercent(percentValue);
+                    extension._osdWindows[monitorIndex]._setLabelPercent(percentValue);
 
                     originalMethod.call(this, monitorIndex, icon, label, level, maxLevel);
                 };
@@ -38,7 +41,8 @@ export default class VolumePercentExtension extends Extension {
         this._injectionManager.overrideMethod(Volume.StreamSlider.prototype, '_volumeStep',
             originalMethod => {
                 return () => {
-                    return this._volumeStep;
+                    // Access the extension's volume step from the captured extension instance
+                    return extension._volumeStep;
                 };
             });
 
