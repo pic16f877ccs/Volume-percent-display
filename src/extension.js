@@ -54,6 +54,13 @@ export default class VolumePercentExtension extends Extension {
             this._osdWindows[i].destroy();
             this._osdWindows[i] = null;
         }
+        this._osdWindows = null;
+
+        if (this._positionRightBottomChangedId) {
+            this._settings.disconnect(this._positionRightBottomChangedId);
+            this._positionRightBottomChangedId = null;
+        }
+        this._settings = null;
     }
 }
 
@@ -63,7 +70,9 @@ export const VolumePercentOsdWindow = GObject.registerClass(
         super._init(monitorIndex)
         this._settings = settings;
         this._percent_label_position = this._settings.get_boolean('position-right-bottom');
-        this._settings.connect('changed::position-right-bottom', this._positionMoved.bind(this));
+        this._positionRightBottomChangedId = this._settings.connect(
+            'changed::position-right-bottom', this._positionMoved.bind(this)
+        );
 
         this._label_percent = new St.Label();
         this._vbox.add_style_class_name('osd-window-box');
