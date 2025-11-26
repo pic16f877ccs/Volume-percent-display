@@ -23,21 +23,27 @@ build() {
 
 nested() {
     local first_arg="${1}"
-    if [ "$first_arg" = '--fullhd' ]; then
-        echo 'Full Hd screen size...'
-
-        export MUTTER_DEBUG_DUMMY_MODE_SPECS=1920x1080 
-        export MUTTER_DEBUG_DUMMY_MONITOR_SCALES=1.5 
-    else
-        echo 'UHD screen size...'
-        export MUTTER_DEBUG_DUMMY_MODE_SPECS=3840x2100 
-        export MUTTER_DEBUG_DUMMY_MONITOR_SCALES=2.0 
-    fi
 
     echo '...'
     export MUTTER_DEBUG_NUM_DUMMY_MONITORS=1 
 
-    dbus-run-session -- gnome-shell --unsafe-mode --nested --wayland --no-x11
+    if [ "$(gnome-shell --version | awk '{print int($3)}')" -ge 49 ]; then
+        dbus-run-session gnome-shell --devkit --wayland
+    else
+        if [ "$first_arg" = '--fullhd' ]; then
+            echo 'Full Hd screen size...'
+
+            export MUTTER_DEBUG_DUMMY_MODE_SPECS=1920x1080 
+            export MUTTER_DEBUG_DUMMY_MONITOR_SCALES=1.5 
+        else
+            echo 'UHD screen size...'
+            export MUTTER_DEBUG_DUMMY_MODE_SPECS=3840x2100 
+            export MUTTER_DEBUG_DUMMY_MONITOR_SCALES=2.0 
+        fi
+
+        export MUTTER_DEBUG_NUM_DUMMY_MONITORS=1 
+        dbus-run-session -- gnome-shell --unsafe-mode --nested --wayland --no-x11
+    fi
 }
 
 debug() {
