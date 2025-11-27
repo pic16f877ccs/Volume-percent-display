@@ -21,7 +21,7 @@ export default class VolumePercentExtension extends Extension {
         this._injectionManager.overrideMethod(OsdWindowManagerOrig.prototype, '_showOsdWindow',
             originalMethod => {
                 return (monitorIndex, icon, label, level, maxLevel) => {
-                    maxLevel = Number.isFinite(maxLevel) ? maxLevel : 1;
+                    maxLevel = Number.isFinite(maxLevel) ? Math.abs(maxLevel) : 1;
                     const percentValue = Number.isFinite(level) ? Math.round(level / maxLevel * 100).toString() + '%' : null;
                     label = typeof label === "string" ? label : "";
                     label = Number.isFinite(level) ? label : null;
