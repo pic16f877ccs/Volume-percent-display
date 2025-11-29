@@ -7,6 +7,6 @@
   "shell-version": ["47", "48", "49"],
   "url": "https://github.com/pic16f877ccs/Volume-percent-display",
   "uuid": "volumePercentDisplay@pic16f887.github.com",
-  "version": 1,
+  "version": 2,
   "version-name": "2.1.2"
 }
