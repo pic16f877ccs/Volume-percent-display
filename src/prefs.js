@@ -1,11 +1,10 @@
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
-import Gtk from 'gi://Gtk';
 
 import {ExtensionPreferences,
     gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-export default class MonitorSmartSaverPreferences extends ExtensionPreferences {
+export default class VolumePercentDisplayPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         window._settings = this.getSettings();
 
