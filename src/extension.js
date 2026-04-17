@@ -8,12 +8,11 @@ import { OsdWindowManager as OsdWindowManagerOrig, OsdWindow } from "resource://
 
 export default class VolumePercentExtension extends Extension {
     enable() {
+        this._osdWindows = [];
         this._settings = this.getSettings();
-        this._percent_label_position = this._settings.get_boolean('position-right-bottom');
         this._injectionManager = new InjectionManager();
 
-        this._osdWindows = [];
-        Main.layoutManager.connect('monitors-changed',
+        this._monitorsChangedId = Main.layoutManager.connect('monitors-changed',
             this._monitorsChanged.bind(this));
 
         this._monitorsChanged();
@@ -29,7 +28,8 @@ export default class VolumePercentExtension extends Extension {
 
                     originalMethod.call(this, monitorIndex, icon, label, level, maxLevel);
                 };
-            });
+            }
+        );
     }
 
     _monitorsChanged() {
@@ -47,6 +47,9 @@ export default class VolumePercentExtension extends Extension {
     }
 
     disable() {
+        Main.layoutManager.disconnect(this._monitorsChangedId);
+        this._monitorsChangedId = null;
+
         this._injectionManager.clear();
         this._injectionManager = null;
 
@@ -56,10 +59,6 @@ export default class VolumePercentExtension extends Extension {
         }
         this._osdWindows = null;
 
-        if (this._positionRightBottomChangedId) {
-            this._settings.disconnect(this._positionRightBottomChangedId);
-            this._positionRightBottomChangedId = null;
-        }
         this._settings = null;
     }
 }
@@ -67,7 +66,7 @@ export default class VolumePercentExtension extends Extension {
 export const VolumePercentOsdWindow = GObject.registerClass(
     class VolumePercentOsdWindow extends OsdWindow {
     _init(monitorIndex, settings) {
-        super._init(monitorIndex)
+        super._init(monitorIndex);
         this._settings = settings;
         this._percent_label_position = this._settings.get_boolean('position-right-bottom');
         this._positionRightBottomChangedId = this._settings.connect(
@@ -143,6 +142,7 @@ export const VolumePercentOsdWindow = GObject.registerClass(
                 if (this._vbox.get_last_child() === this._empty_box) {
                     this._vbox.remove_child(this._empty_box);
                 }
+                this._empty_box.destroy();
                 this._empty_box = null;
             }
 
@@ -150,11 +150,12 @@ export const VolumePercentOsdWindow = GObject.registerClass(
                 if (this._right_box.get_last_child() === this._label_percent) {
                     this._right_box.remove_child(this._label_percent);
                 }
-                this._right_box = null;
-            }
 
-            if (this._hbox.get_last_child() === this._right_box) {
-                this._hbox.remove_child(this._right_box);
+                if (this._hbox.get_last_child() === this._right_box) {
+                    this._hbox.remove_child(this._right_box);
+                }
+                this._right_box.destroy();
+                this._right_box = null;
             }
 
             if (this._vbox.get_last_child() === this._label_percent) {
@@ -163,14 +164,22 @@ export const VolumePercentOsdWindow = GObject.registerClass(
         } else {
             this._positionMoved();
 
-            this._label_percent.visible = label != null;
-            if (this._label_percent.visible) {
-                this._label_percent.text = label;
-            }
+            this._label_percent.text = label;
+            this._label_percent.visible = true;
         }
     }
 
     _resetPercentLabel() {
         this._setLabelPercent(null);
+    }
+
+
+    destroy() {
+        if (this._positionRightBottomChangedId) {
+            this._settings.disconnect(this._positionRightBottomChangedId);
+            this._positionRightBottomChangedId = null;
+        }
+
+        super.destroy();
     }
 });
