@@ -3,19 +3,27 @@ set -e
 
 readonly _EXTENSION='volumePercentDisplay@pic16f887.github.com'
 readonly _EXTENSION_NAME='volume-percent-display'
+readonly PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly BUILD_DIST="${PROJECT_ROOT}/build/dist/"
 
 build() {
-    mkdir -p './build/temp/'
-    mkdir -p './build/dist/'
-
-    rm -rf "./build/temp/*"
-    cp -r $(find './src/' -mindepth 1 -maxdepth 1 -not -name 'assets') './build/temp/'
+    local build_temp="${PROJECT_ROOT}/build/temp/"
+    local path_to_schema="${PROJECT_ROOT}/assets/org.gnome.shell.extensions.volume-percent-display.gschema.xml"
+    local path_to_src="${PROJECT_ROOT}/src/"
+ 
+    mkdir -p "$build_temp"
+    mkdir -p "$BUILD_DIST"
+ 
+    rm -rf "${build_temp:?}"/*
+ 
+    find "$path_to_src" -mindepth 1 -maxdepth 1 -not -name 'assets' -exec cp -r {} "$build_temp" \;
 
     echo 'Packing...'
 
-    local path_to_schema="${PWD}/assets/org.gnome.shell.extensions.volume-percent-display.gschema.xml"
+    if gnome-extensions pack -f -o "$BUILD_DIST" \
+        --schema="$path_to_schema" \
+        "$build_temp"; then
 
-    if gnome-extensions pack -f -o './build/dist' --schema="$path_to_schema" './build/temp'; then
         echo '...'
         echo 'Success!'
     fi
@@ -32,11 +40,14 @@ nested() {
     else
         if [ "$first_arg" = '--fullhd' ]; then
             echo 'Full Hd screen size...'
+            echo '...' 
 
             export MUTTER_DEBUG_DUMMY_MODE_SPECS=1920x1080 
             export MUTTER_DEBUG_DUMMY_MONITOR_SCALES=1.5 
         else
             echo 'UHD screen size...'
+            echo '...' 
+
             export MUTTER_DEBUG_DUMMY_MODE_SPECS=3840x2100 
             export MUTTER_DEBUG_DUMMY_MONITOR_SCALES=2.0 
         fi
@@ -61,6 +72,8 @@ debug() {
         enable
     fi
 
+    build
+    install
     nested "$fullhd"
 }
 
@@ -72,7 +85,7 @@ install() {
     fi
 
     echo 'Installing...'
-    gnome-extensions install --force "./build/dist/${_EXTENSION}.shell-extension.zip"
+    gnome-extensions install --force "${BUILD_DIST}${_EXTENSION}.shell-extension.zip"
     echo '...'
     echo 'Success!'
 }
@@ -101,6 +114,19 @@ disable() {
 prefs() {
   echo 'Opening prefs...'
   gnome-extensions prefs "$_EXTENSION"
+}
+ 
+key() {
+    local first_arg="${1}"
+    echo 'Reading setting key...'
+    echo '...'
+    dconf read "/org/gnome/shell/extensions/${_EXTENSION_NAME}/$first_arg"
+}
+ 
+list() {
+    echo 'List all setting keys...'
+    echo '...'
+    dconf list "/org/gnome/shell/extensions/${_EXTENSION_NAME}/"
 }
 
 watch() {
@@ -135,6 +161,12 @@ disable)
 prefs)
   prefs
   ;;
+key)
+   key "$2"
+   ;;
+list)
+   list
+   ;;
 watch)
   watch
   ;;
@@ -142,7 +174,7 @@ reset)
   reset
   ;;
 *)
-  echo "Usage: $0 {debug|build|install|uninstall|enable|disable|prefs|watch|reset}"
+  echo "Usage: $0 {debug|build|install|uninstall|enable|disable|prefs|key|list|watch|reset}"
   exit 1
   ;;
 esac
