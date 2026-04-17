@@ -4,9 +4,9 @@
   "name": "Volume Percent Display",
   "gettext-domain": "Volume-percent-display",
   "settings-schema": "org.gnome.shell.extensions.volume-percent-display",
-  "shell-version": ["47", "48", "49"],
+  "shell-version": ["47", "48", "49", "50"],
   "url": "https://github.com/pic16f877ccs/Volume-percent-display",
   "uuid": "volumePercentDisplay@pic16f887.github.com",
-  "version": 2,
-  "version-name": "2.1.2"
+  "version": 3,
+  "version-name": "2.2.0"
 }
