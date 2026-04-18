@@ -6,7 +6,7 @@ import {ExtensionPreferences,
 
 export default class VolumePercentDisplayPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
-        window._settings = this.getSettings();
+        const settings = this.getSettings();
 
         const page = new Adw.PreferencesPage({
             title: null,
@@ -25,7 +25,7 @@ export default class VolumePercentDisplayPreferences extends ExtensionPreference
 
         volumePercentPosition.add(volumePositionSwitchRow);
 
-        window._settings.bind('position-right-bottom', volumePositionSwitchRow, 'active',
+        settings.bind('position-right-bottom', volumePositionSwitchRow, 'active',
         Gio.SettingsBindFlags.DEFAULT);
     }
 }
