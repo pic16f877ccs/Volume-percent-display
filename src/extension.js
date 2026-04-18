@@ -151,7 +151,9 @@ export const VolumePercentOsdWindow = GObject.registerClass(
                 this._vbox.remove_child(this._label_percent);
             }
         } else {
-            this._positionMoved();
+            if (!this._label_percent.get_parent()) {
+                this._positionMoved();
+            }
 
             this._label_percent.text = String(label);
             this._label_percent.visible = true;
