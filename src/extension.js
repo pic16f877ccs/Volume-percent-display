@@ -20,13 +20,16 @@ export default class VolumePercentExtension extends Extension {
         this._injectionManager.overrideMethod(OsdWindowManagerOrig.prototype, '_showOsdWindow',
             originalMethod => {
                 return (monitorIndex, icon, label, level, maxLevel) => {
-                    maxLevel = Number.isFinite(maxLevel) ? Math.abs(maxLevel) : 1;
+                    maxLevel = Number.isFinite(maxLevel) && maxLevel !== 0 ? Math.abs(maxLevel) : 1;
                     const percentValue = Number.isFinite(level) ? Math.round(level / maxLevel * 100).toString() + '%' : null;
-                    label = typeof label === "string" ? label : "";
-                    label = Number.isFinite(level) ? label : null;
-                    this._osdWindows[monitorIndex]._setLabelPercent(percentValue);
+                    const sanitizedLabel = typeof label === "string" ? label : "";
+                    const effectiveLabel = Number.isFinite(level) ? sanitizedLabel : null;
 
-                    originalMethod.call(this, monitorIndex, icon, label, level, maxLevel);
+                    if (monitorIndex >= 0 && monitorIndex < this._osdWindows.length) {
+                        this._osdWindows[monitorIndex]._setLabelPercent(percentValue);
+                    }
+
+                    originalMethod.call(this, monitorIndex, icon, effectiveLabel, level, maxLevel);
                 };
             }
         );
@@ -89,11 +92,11 @@ export const VolumePercentOsdWindow = GObject.registerClass(
         if (this._percent_label_position) {
             this._clearLayout();
 
-            if (this._vbox.get_last_child() !== this._label_percent) {
+            if (!this._vbox.contains(this._label_percent)) {
                 this._vbox.add_child(this._label_percent);
             }
         } else {
-            if (this._vbox.get_last_child() === this._label_percent) {
+            if (this._vbox.contains(this._label_percent)) {
                 this._vbox.remove_child(this._label_percent);
             }
 
@@ -120,23 +123,23 @@ export const VolumePercentOsdWindow = GObject.registerClass(
 
     _clearLayout() {
         if (this._empty_box !== null) {
-            if (this._vbox.get_last_child() === this._empty_box) {
+            if (this._vbox.contains(this._empty_box)) {
                 this._vbox.remove_child(this._empty_box);
-                this._empty_box.destroy();
-                this._empty_box = null;
             }
+            this._empty_box.destroy();
+            this._empty_box = null;
         }
 
         if (this._right_box !== null) {
-            if (this._right_box.get_last_child() === this._label_percent) {
+            if (this._right_box.contains(this._label_percent)) {
                 this._right_box.remove_child(this._label_percent);
             }
 
-            if (this._hbox.get_last_child() === this._right_box) {
+            if (this._hbox.contains(this._right_box)) {
                 this._hbox.remove_child(this._right_box);
-                this._right_box.destroy();
-                this._right_box = null;
             }
+            this._right_box.destroy();
+            this._right_box = null;
         }
     }
 
@@ -144,7 +147,7 @@ export const VolumePercentOsdWindow = GObject.registerClass(
         if (label === null) {
             this._clearLayout();
 
-            if (this._vbox.get_last_child() === this._label_percent) {
+            if (this._vbox.contains(this._label_percent)) {
                 this._vbox.remove_child(this._label_percent);
             }
         } else {
@@ -160,7 +163,7 @@ export const VolumePercentOsdWindow = GObject.registerClass(
     }
 
     destroy() {
-        if (this._positionRightBottomChangedId) {
+        if (this._positionRightBottomChangedId !== null) {
             this._settings.disconnect(this._positionRightBottomChangedId);
             this._positionRightBottomChangedId = null;
         }
