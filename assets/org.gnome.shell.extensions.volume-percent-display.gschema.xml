@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
     <schema id="org.gnome.shell.extensions.volume-percent-display" path="/org/gnome/shell/extensions/volume-percent-display/">
-    <key name="position-right-bottom" type="b">
-        <default>true</default>
-    </key></schema>
+        <key name="position-right-bottom" type="b">
+            <summary>Volume percent label position</summary>
+            <description>If true, the percent label appears below the slider. If false, it appears to the right.</description>
+            <default>true</default>
+        </key>
+    </schema>
 </schemalist>
