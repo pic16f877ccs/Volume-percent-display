@@ -87,25 +87,7 @@ export const VolumePercentOsdWindow = GObject.registerClass(
         this._percent_label_position = this._settings.get_boolean('position-right-bottom');
 
         if (this._percent_label_position) {
-            if (this._empty_box !== null) {
-                if (this._vbox.get_last_child() === this._empty_box) {
-                    this._vbox.remove_child(this._empty_box);
-                    this._empty_box.destroy();
-                    this._empty_box = null;
-                }
-            }
-
-            if (this._right_box !== null) {
-                if (this._right_box.get_last_child() === this._label_percent) {
-                    this._right_box.remove_child(this._label_percent);
-                }
-
-                if (this._hbox.get_last_child() === this._right_box) {
-                    this._hbox.remove_child(this._right_box);
-                    this._right_box.destroy();
-                    this._right_box = null;
-                }
-            }
+            this._clearLayout();
 
             if (this._vbox.get_last_child() !== this._label_percent) {
                 this._vbox.add_child(this._label_percent);
@@ -136,27 +118,31 @@ export const VolumePercentOsdWindow = GObject.registerClass(
         }
     }
 
-    _setLabelPercent(label) {
-        if (label === null) {
-            if (this._empty_box !== null) {
-                if (this._vbox.get_last_child() === this._empty_box) {
-                    this._vbox.remove_child(this._empty_box);
-                }
+    _clearLayout() {
+        if (this._empty_box !== null) {
+            if (this._vbox.get_last_child() === this._empty_box) {
+                this._vbox.remove_child(this._empty_box);
                 this._empty_box.destroy();
                 this._empty_box = null;
             }
+        }
 
-            if (this._right_box !== null) {
-                if (this._right_box.get_last_child() === this._label_percent) {
-                    this._right_box.remove_child(this._label_percent);
-                }
+        if (this._right_box !== null) {
+            if (this._right_box.get_last_child() === this._label_percent) {
+                this._right_box.remove_child(this._label_percent);
+            }
 
-                if (this._hbox.get_last_child() === this._right_box) {
-                    this._hbox.remove_child(this._right_box);
-                }
+            if (this._hbox.get_last_child() === this._right_box) {
+                this._hbox.remove_child(this._right_box);
                 this._right_box.destroy();
                 this._right_box = null;
             }
+        }
+    }
+
+    _setLabelPercent(label) {
+        if (label === null) {
+            this._clearLayout();
 
             if (this._vbox.get_last_child() === this._label_percent) {
                 this._vbox.remove_child(this._label_percent);
@@ -164,7 +150,7 @@ export const VolumePercentOsdWindow = GObject.registerClass(
         } else {
             this._positionMoved();
 
-            this._label_percent.text = label;
+            this._label_percent.text = String(label);
             this._label_percent.visible = true;
         }
     }
@@ -172,7 +158,6 @@ export const VolumePercentOsdWindow = GObject.registerClass(
     _resetPercentLabel() {
         this._setLabelPercent(null);
     }
-
 
     destroy() {
         if (this._positionRightBottomChangedId) {
