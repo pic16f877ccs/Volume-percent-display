@@ -76,14 +76,14 @@ export const VolumePercentOsdWindow = GObject.registerClass(
             'changed::position-right-bottom', this._positionMoved.bind(this)
         );
 
-        this._label_percent = new St.Label();
+        this._labelPercent = new St.Label();
         this._vbox.add_style_class_name('osd-window-box');
         this._label.add_style_class_name('osd-window-label');
-        this._empty_box = null;
-        this._right_box = null;
+        this._emptyBox = null;
+        this._rightBox = null;
 
         this._positionMoved();
-        this._resetPercentLabel();
+        this._setLabelPercent(null);
     }
 
     _positionMoved() {
@@ -92,54 +92,54 @@ export const VolumePercentOsdWindow = GObject.registerClass(
         if (this._percent_label_position) {
             this._clearLayout();
 
-            if (!this._vbox.contains(this._label_percent)) {
-                this._vbox.add_child(this._label_percent);
+            if (!this._vbox.contains(this._labelPercent)) {
+                this._vbox.add_child(this._labelPercent);
             }
         } else {
-            if (this._vbox.contains(this._label_percent)) {
-                this._vbox.remove_child(this._label_percent);
+            if (this._vbox.contains(this._labelPercent)) {
+                this._vbox.remove_child(this._labelPercent);
             }
 
-            if (this._empty_box === null) {
-                this._empty_box = new St.BoxLayout({
+            if (this._emptyBox === null) {
+                this._emptyBox = new St.BoxLayout({
                     orientation: Clutter.Orientation.VERTICAL,
                     y_align: Clutter.ActorAlign.CENTER,
                     height: this._label.height,
                 });
-                this._vbox.add_child(this._empty_box);
+                this._vbox.add_child(this._emptyBox);
             }
 
-            if (this._right_box === null) {
-                this._right_box = new St.BoxLayout({
+            if (this._rightBox === null) {
+                this._rightBox = new St.BoxLayout({
                     orientation: Clutter.Orientation.VERTICAL,
                     y_align: Clutter.ActorAlign.CENTER,
                 });
-                this._right_box.add_child(this._label_percent);
+                this._rightBox.add_child(this._labelPercent);
 
-                this._hbox.add_child(this._right_box);
+                this._hbox.add_child(this._rightBox);
             }
         }
     }
 
     _clearLayout() {
-        if (this._empty_box !== null) {
-            if (this._vbox.contains(this._empty_box)) {
-                this._vbox.remove_child(this._empty_box);
+        if (this._emptyBox !== null) {
+            if (this._vbox.contains(this._emptyBox)) {
+                this._vbox.remove_child(this._emptyBox);
             }
-            this._empty_box.destroy();
-            this._empty_box = null;
+            this._emptyBox.destroy();
+            this._emptyBox = null;
         }
 
-        if (this._right_box !== null) {
-            if (this._right_box.contains(this._label_percent)) {
-                this._right_box.remove_child(this._label_percent);
+        if (this._rightBox !== null) {
+            if (this._rightBox.contains(this._labelPercent)) {
+                this._rightBox.remove_child(this._labelPercent);
             }
 
-            if (this._hbox.contains(this._right_box)) {
-                this._hbox.remove_child(this._right_box);
+            if (this._hbox.contains(this._rightBox)) {
+                this._hbox.remove_child(this._rightBox);
             }
-            this._right_box.destroy();
-            this._right_box = null;
+            this._rightBox.destroy();
+            this._rightBox = null;
         }
     }
 
@@ -147,21 +147,17 @@ export const VolumePercentOsdWindow = GObject.registerClass(
         if (label === null) {
             this._clearLayout();
 
-            if (this._vbox.contains(this._label_percent)) {
-                this._vbox.remove_child(this._label_percent);
+            if (this._vbox.contains(this._labelPercent)) {
+                this._vbox.remove_child(this._labelPercent);
             }
         } else {
-            if (!this._label_percent.get_parent()) {
+            if (!this._labelPercent.get_parent()) {
                 this._positionMoved();
             }
 
-            this._label_percent.text = String(label);
-            this._label_percent.visible = true;
+            this._labelPercent.text = String(label);
+            this._labelPercent.visible = true;
         }
-    }
-
-    _resetPercentLabel() {
-        this._setLabelPercent(null);
     }
 
     destroy() {
@@ -170,6 +166,9 @@ export const VolumePercentOsdWindow = GObject.registerClass(
             this._positionRightBottomChangedId = null;
         }
 
+        this._clearLayout();
+        this._labelPercent?.destroy();
+        this._labelPercent = null;
         super.destroy();
     }
 });
