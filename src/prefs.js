@@ -19,8 +19,8 @@ export default class VolumePercentDisplayPreferences extends ExtensionPreference
         page.add(volumePercentPosition);
 
         const volumePositionSwitchRow = new Adw.SwitchRow({
-            title: _('Volume percent position'),
-            subtitle: _('Volume percent position right or bottom'),
+            title: _('Show label below slider'),
+            subtitle: _('When disabled, label appears to the right'),
         });
 
         volumePercentPosition.add(volumePositionSwitchRow);
