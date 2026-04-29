@@ -21,7 +21,7 @@ export default class VolumePercentExtension extends Extension {
             originalMethod => {
                 return (monitorIndex, icon, label, level, maxLevel) => {
                     maxLevel = Number.isFinite(maxLevel) && maxLevel !== 0 ? Math.abs(maxLevel) : 1;
-                    const percentValue = Number.isFinite(level) ? Math.round(level / maxLevel * 100).toString() + '%' : null;
+                    const percentValue = Number.isFinite(level) ? Math.round(level / 1 * 100).toString() + '%' : null;
                     const sanitizedLabel = typeof label === "string" ? label : "";
                     const effectiveLabel = Number.isFinite(level) ? sanitizedLabel : null;
 
